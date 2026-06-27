@@ -185,7 +185,7 @@ class WebSocketAccessTests(unittest.TestCase):
 
         self.assertEqual(main.ACCESS_CONTROL._active_sessions, 0)
 
-    def test_still_accepts_query_token_during_transition(self):
+    def test_rejects_query_token_without_first_message_token_after_transition(self):
         main.ACCESS_CONTROL = CrawlAccessControl(required_token="secret")
         client = TestClient(main.app)
 
@@ -201,7 +201,11 @@ class WebSocketAccessTests(unittest.TestCase):
                     }
                 )
 
-                self.assertEqual(websocket.receive_json()["type"], "done")
+                self.assertEqual(websocket.receive_json()["type"], "error")
+                close_message = websocket.receive()
+
+        self.assertEqual(close_message["type"], "websocket.close")
+        self.assertEqual(close_message["code"], 1008)
 
     def test_wrong_first_message_token_does_not_consume_session_or_rate_limit(self):
         main.ACCESS_CONTROL = CrawlAccessControl(

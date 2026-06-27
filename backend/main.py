@@ -190,7 +190,7 @@ async def crawl_ws(websocket: WebSocket):
             timeout=INITIAL_WS_MESSAGE_TIMEOUT_SECONDS,
         )
         data = json.loads(raw_config)
-        fallback_token = websocket.query_params.get("access_token") or websocket.headers.get("x-wordfinder-token")
+        fallback_token = websocket.headers.get("x-wordfinder-token")
         token = fallback_token or data.get("access_token")
 
         allowed, reason = ACCESS_CONTROL.authorize(token)
