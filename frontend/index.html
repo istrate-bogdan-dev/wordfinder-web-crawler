@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Finder — Terminology Audit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css?v=case-sensitive-info" />
+</head>
+<body>
+
+  <div class="scanlines"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">◎</span>
+      <span class="brand-name">Word<span class="accent">Finder</span></span>
+    </div>
+    <div class="topbar-sub">focused web crawler for keyword discovery</div>
+  </header>
+
+  <main class="layout">
+
+    <!-- Control panel -->
+    <section class="panel control-panel" id="controlPanel">
+      <div class="panel-title-row">
+        <h2 class="panel-title">01 &mdash; Configure the scan</h2>
+        <span class="inline-info">
+          <button type="button" class="inline-info-btn" aria-label="What does Configure the scan mean?">i</button>
+          <span class="inline-info-popover" id="configureScanInfoText" role="tooltip">Use this panel to choose where the scan starts, what word or phrase to look for, how many pages WordFinder may check, and how strict the match should be.</span>
+        </span>
+      </div>
+
+      <div class="field">
+        <label for="startUrl">Start URL</label>
+        <input type="url" id="startUrl" placeholder="https://www.siemens-energy.com/..." value="https://www.siemens-energy.com" />
+      </div>
+
+      <div class="field">
+        <label for="keyword">Keyword</label>
+        <input type="text" id="keyword" placeholder="e.g. sustainability" />
+      </div>
+
+      <div class="field">
+        <label for="accessToken">Access key</label>
+        <input type="password" id="accessToken" placeholder="Required only on protected deployments" autocomplete="current-password" />
+      </div>
+
+      <div class="advanced-settings">
+        <button type="button" class="advanced-toggle" id="advancedToggle" aria-expanded="false" aria-controls="advancedPanel">
+          <span>Advanced settings</span>
+          <span class="advanced-summary" id="advancedSummary">Depth 2 · 60 pages · 8 at once</span>
+          <span class="advanced-chevron" aria-hidden="true">▾</span>
+        </button>
+
+        <div class="advanced-panel" id="advancedPanel" hidden>
+          <div class="field-row advanced-grid">
+            <div class="field field-small number-field">
+              <div class="label-row">
+                <label for="maxDepth">Depth</label>
+                <button type="button" class="info-btn" aria-label="What does Depth do?" aria-expanded="false" data-info-target="depthInfo">i</button>
+              </div>
+              <p class="info-popover" id="depthInfo" hidden>How many clicks away from the start page WordFinder may follow. Higher depth explores farther, but can take longer.</p>
+              <div class="number-control">
+                <input type="number" id="maxDepth" min="0" max="4" value="2" />
+                <div class="stepper">
+                  <button type="button" class="stepper-btn" data-step-target="maxDepth" data-step="1" aria-label="Increase depth">▲</button>
+                  <button type="button" class="stepper-btn" data-step-target="maxDepth" data-step="-1" aria-label="Decrease depth">▼</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field field-small number-field">
+              <div class="label-row">
+                <label for="maxPages">Page limit</label>
+                <button type="button" class="info-btn" aria-label="What does Page limit do?" aria-expanded="false" data-info-target="pageLimitInfo">i</button>
+              </div>
+              <p class="info-popover" id="pageLimitInfo" hidden>The maximum number of pages WordFinder will check in one scan. Lower limits finish faster.</p>
+              <div class="number-control">
+                <input type="number" id="maxPages" min="1" max="200" value="60" />
+                <div class="stepper">
+                  <button type="button" class="stepper-btn" data-step-target="maxPages" data-step="1" aria-label="Increase page limit">▲</button>
+                  <button type="button" class="stepper-btn" data-step-target="maxPages" data-step="-1" aria-label="Decrease page limit">▼</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field field-small number-field">
+              <div class="label-row">
+                <label for="maxConcurrency">Concurrency</label>
+                <button type="button" class="info-btn" aria-label="What does Concurrency do?" aria-expanded="false" data-info-target="concurrencyInfo">i</button>
+              </div>
+              <p class="info-popover" id="concurrencyInfo" hidden>How many pages WordFinder may check at the same time. Higher values can be faster, but may be heavier on the website.</p>
+              <div class="number-control">
+                <input type="number" id="maxConcurrency" min="1" max="10" value="8" />
+                <div class="stepper">
+                  <button type="button" class="stepper-btn" data-step-target="maxConcurrency" data-step="1" aria-label="Increase concurrency">▲</button>
+                  <button type="button" class="stepper-btn" data-step-target="maxConcurrency" data-step="-1" aria-label="Decrease concurrency">▼</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row advanced-grid matching-grid">
+            <div class="field field-small">
+              <div class="label-row">
+                <label for="matchMode">Match mode</label>
+                <button type="button" class="info-btn" aria-label="What does Match mode do?" aria-expanded="false" data-info-target="matchModeInfo">i</button>
+              </div>
+              <p class="info-popover" id="matchModeInfo" hidden>Choose whether WordFinder should match only the exact word, any partial text inside a larger word, or a phrase with flexible spacing.</p>
+              <select id="matchMode">
+                <option value="exact_word" selected>Exact word</option>
+                <option value="partial">Partial match</option>
+                <option value="phrase">Phrase</option>
+              </select>
+            </div>
+
+            <div class="field field-small">
+              <div class="label-row">
+                <label for="searchScope">Search scope</label>
+                <button type="button" class="info-btn" aria-label="What does Search scope do?" aria-expanded="false" data-info-target="searchScopeInfo">i</button>
+              </div>
+              <p class="info-popover" id="searchScopeInfo" hidden>Visible text is what readers see on the page. Metadata includes title, descriptions, labels, and image alt text. Full HTML is noisier but useful for technical checks.</p>
+              <select id="searchScope">
+                <option value="visible_text" selected>Visible text</option>
+                <option value="visible_plus_metadata">Text + metadata</option>
+                <option value="full_html">Full HTML</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="decision-summary" id="matchingDecisionSummary">Searching visible text, case-insensitive, exact whole-word matches.</p>
+        </div>
+      </div>
+
+      <div class="field-row toggles">
+        <div class="toggle-option">
+          <label class="toggle">
+            <input type="checkbox" id="caseSensitive" />
+            <span>Case sensitive</span>
+          </label>
+          <button type="button" class="info-btn" aria-label="What does Case sensitive do?" aria-expanded="false" data-info-target="caseSensitiveInfo">i</button>
+          <p class="info-popover" id="caseSensitiveInfo" hidden>Match uppercase and lowercase exactly. For example, Energy and energy are treated as different words.</p>
+        </div>
+
+        <div class="toggle-option">
+          <label class="toggle variant-toggle">
+            <input type="checkbox" id="includeVariants" />
+            <span>Include plurals</span>
+          </label>
+          <button type="button" class="info-btn" aria-label="What does Include plurals do?" aria-expanded="false" data-info-target="includeVariantsInfo">i</button>
+          <p class="info-popover" id="includeVariantsInfo" hidden>Also find simple English plural forms, such as service/services or battery/batteries. This does not include synonyms or translations.</p>
+        </div>
+      </div>
+
+      <button id="startBtn" class="btn-primary">
+        <span class="btn-label">Start scan</span>
+        <span class="btn-icon">▸</span>
+      </button>
+      <button id="stopBtn" class="btn-secondary" disabled>Stop</button>
+
+      <p class="hint" id="statusHint" aria-live="polite">Ready to scan.</p>
+    </section>
+
+    <!-- Live graph -->
+    <section class="panel graph-panel">
+      <div class="panel-title-row">
+        <h2 class="panel-title">02 &mdash; Live crawl map</h2>
+        <span class="inline-info">
+          <button type="button" class="inline-info-btn" aria-label="What does Live crawl map mean?">i</button>
+          <span class="inline-info-popover" id="liveCrawlMapInfoText" role="tooltip">Shows the pages WordFinder is checking and how they connect. Select a dot to explore nearby pages without leaving the map.</span>
+        </span>
+      </div>
+      <div class="graph-wrap">
+        <div class="graph-toolbar" aria-label="Graph controls">
+          <button type="button" class="graph-tool-btn" id="graphFitView" aria-label="Fit graph to view" title="Fit graph to view">⌖</button>
+          <button type="button" class="graph-tool-btn" id="graphResetView" aria-label="Reset graph view" title="Reset graph view">↺</button>
+        </div>
+        <canvas id="crawlGraph" role="img" tabindex="0" aria-describedby="graphTextSummary"></canvas>
+        <div class="sr-only" id="graphTextSummary" aria-live="polite">No pages have been checked yet.</div>
+        <div class="graph-tooltip" id="graphTooltip" hidden></div>
+        <div class="graph-placeholder" id="graphPlaceholder">
+          <span class="graph-placeholder-dot"></span>
+          <span>The graph will appear here once you start the scan</span>
+        </div>
+      </div>
+      <div class="graph-legend">
+        <span class="legend-item"><i class="dot dot-ok"></i> match found</span>
+        <span class="legend-item"><i class="dot dot-none"></i> no match</span>
+        <span class="legend-item"><i class="dot dot-error"></i> error / blocked</span>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="panel stats-panel">
+      <div class="panel-title-row">
+        <h2 class="panel-title">03 &mdash; Live stats</h2>
+        <span class="inline-info">
+          <button type="button" class="inline-info-btn" aria-label="What does Live stats mean?">i</button>
+          <span class="inline-info-popover" id="liveStatsInfoText" role="tooltip">Shows the main scan numbers: how many pages were checked, how many keyword matches were found, and how many pages contain at least one result.</span>
+        </span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-value" id="statPages">0</div>
+          <div class="stat-label">pages scanned</div>
+        </div>
+        <div class="stat stat-accent">
+          <div class="stat-value" id="statMatches">0</div>
+          <div class="stat-label">matches found</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="statPagesWithMatch">0</div>
+          <div class="stat-label">pages with a result</div>
+        </div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-caption" id="progressCaption">0 / 60 pages</div>
+      <button type="button" class="details-toggle" id="statsDetailsToggle" aria-expanded="false" aria-controls="statsDetails">
+        <span>More details</span>
+        <span class="details-chevron" aria-hidden="true">▾</span>
+      </button>
+      <div class="stats-details" id="statsDetails" hidden>
+        <div class="detail-metric">
+          <span class="detail-label">Average time per page</span>
+          <span class="detail-value" id="statSpeed">0ms</span>
+        </div>
+        <div class="roadmap-details">
+          <div class="detail-heading">
+            <span class="detail-label">Scan roadmap</span>
+            <span class="inline-info">
+              <button type="button" class="inline-info-btn" aria-label="What does Scan roadmap mean?">i</button>
+              <span class="inline-info-popover" role="tooltip">Shows how far WordFinder had to move from the starting page to find and check pages.</span>
+            </span>
+          </div>
+          <div class="roadmap-list" id="roadmapList">
+            <div class="roadmap-empty">Start a scan to see how pages are distributed from the starting page.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live feed -->
+    <section class="panel feed-panel">
+      <div class="panel-title-row">
+        <h2 class="panel-title">04 &mdash; Scan feed</h2>
+        <span class="inline-info">
+          <button type="button" class="inline-info-btn" aria-label="What does Scan feed mean?">i</button>
+          <span class="inline-info-popover" id="scanFeedInfoText" role="tooltip">Shows each page as WordFinder checks it, including whether the keyword was found, how many links were discovered, and how long the page took.</span>
+        </span>
+      </div>
+      <div class="feed" id="feed">
+        <div class="feed-empty">Results will appear here as the scan progresses&hellip;</div>
+      </div>
+    </section>
+
+    <!-- Final results -->
+    <section class="panel results-panel" id="resultsPanel" style="display:none;">
+      <div class="panel-title-row">
+        <h2 class="panel-title">05 &mdash; Pages with results</h2>
+        <div class="panel-actions">
+          <button type="button" class="export-btn" id="exportCsvBtn" disabled>CSV</button>
+          <button type="button" class="export-btn" id="exportJsonBtn" disabled>JSON</button>
+          <span class="inline-info">
+            <button type="button" class="inline-info-btn" aria-label="What does Pages with results mean?">i</button>
+            <span class="inline-info-popover" id="resultsInfoText" role="tooltip">Shows only the pages where WordFinder found the keyword. Each card includes the page, how many times the word appears, and short text examples.</span>
+          </span>
+        </div>
+      </div>
+      <div class="results-list" id="resultsList"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    Bounded crawler &middot; respects robots.txt &middot; per-domain rate limiting
+  </footer>
+
+  <script src="/static/number-controls.js"></script>
+  <script src="/static/graph-utils.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
