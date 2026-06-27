@@ -41,3 +41,8 @@ data "aws_acm_certificate" "existing" {
   statuses    = ["ISSUED"]
   most_recent = true
 }
+
+data "tls_certificate" "github_actions" {
+  count = var.create_github_oidc_provider ? 1 : 0
+  url   = "https://token.actions.githubusercontent.com"
+}

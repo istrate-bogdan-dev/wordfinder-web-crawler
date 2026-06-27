@@ -223,11 +223,17 @@ variable "wordfinder_max_response_bytes" {
 variable "create_github_actions_deploy_role" {
   description = "Whether to create an IAM role that GitHub Actions can assume for SSM deploys."
   type        = bool
-  default     = false
+  default     = true
+}
+
+variable "create_github_oidc_provider" {
+  description = "Whether to create the account-level GitHub Actions OIDC provider."
+  type        = bool
+  default     = true
 }
 
 variable "github_oidc_provider_arn" {
-  description = "Existing GitHub Actions OIDC provider ARN. Required if create_github_actions_deploy_role is true."
+  description = "Existing GitHub Actions OIDC provider ARN. Leave empty when create_github_oidc_provider is true."
   type        = string
   default     = ""
 }
