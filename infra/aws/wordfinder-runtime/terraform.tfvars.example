@@ -34,8 +34,9 @@ wordfinder_max_pages                  = 50
 wordfinder_max_depth                  = 2
 wordfinder_max_response_bytes         = 3145728
 
-# Enable later after confirming or creating the account-level GitHub OIDC provider.
-create_github_actions_deploy_role = false
+# GitHub Actions deploys through AWS OIDC and SSM Run Command.
+create_github_oidc_provider       = true
+create_github_actions_deploy_role = true
 github_oidc_provider_arn          = ""
 github_repository                 = "istrate-bogdan-dev/wordfinder-web-crawler"
 github_deploy_branch              = "main"

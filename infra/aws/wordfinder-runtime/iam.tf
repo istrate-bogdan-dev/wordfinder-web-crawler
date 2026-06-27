@@ -58,6 +58,18 @@ resource "aws_iam_instance_profile" "ec2" {
   role = aws_iam_role.ec2.name
 }
 
+resource "aws_iam_openid_connect_provider" "github_actions" {
+  count = var.create_github_oidc_provider ? 1 : 0
+
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.github_actions[0].certificates[0].sha1_fingerprint]
+
+  tags = {
+    Name = "${local.name_prefix}-github-oidc"
+  }
+}
+
 resource "aws_iam_role" "github_deploy" {
   count = var.create_github_actions_deploy_role ? 1 : 0
   name  = "${local.name_prefix}-github-deploy-role"
@@ -68,7 +80,7 @@ resource "aws_iam_role" "github_deploy" {
       Effect = "Allow"
       Action = "sts:AssumeRoleWithWebIdentity"
       Principal = {
-        Federated = var.github_oidc_provider_arn
+        Federated = local.github_oidc_provider_arn
       }
       Condition = {
         StringEquals = {
@@ -83,8 +95,8 @@ resource "aws_iam_role" "github_deploy" {
 
   lifecycle {
     precondition {
-      condition     = var.github_oidc_provider_arn != ""
-      error_message = "github_oidc_provider_arn is required when create_github_actions_deploy_role is true."
+      condition     = local.github_oidc_provider_arn != ""
+      error_message = "Set create_github_oidc_provider=true or provide github_oidc_provider_arn when create_github_actions_deploy_role is true."
     }
   }
 
@@ -115,6 +127,13 @@ resource "aws_iam_role_policy" "github_deploy" {
         Effect = "Allow"
         Action = [
           "ssm:GetCommandInvocation"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeInstances"
         ]
         Resource = "*"
       }
