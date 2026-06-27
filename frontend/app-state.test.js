@@ -64,4 +64,22 @@ assert.match(
   "export buttons should be wired to the export handlers"
 );
 
+assert.doesNotMatch(
+  appSource,
+  /access_token=\$\{encodeURIComponent\(accessToken\)\}/,
+  "access token should not be placed in the WebSocket URL"
+);
+
+assert.match(
+  appSource,
+  /new WebSocket\(`\$\{protocol\}:\/\/\$\{location\.host\}\/ws\/crawl`\)/,
+  "WebSocket should connect without an access token query string"
+);
+
+assert.match(
+  appSource,
+  /access_token: accessToken,[\s\S]*?start_url: startUrl,[\s\S]*?keyword: keyword,/,
+  "access token should be sent in the first WebSocket message payload"
+);
+
 console.log("app state tests passed");

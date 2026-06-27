@@ -46,6 +46,8 @@ Implemented protections include:
 - Response size cap after decompression.
 - Bounded depth, page count, and concurrency.
 - WebSocket access token support.
+- The frontend sends the access token in the first WebSocket message instead
+  of placing it in the WebSocket URL, so normal access logs do not capture it.
 - Per-IP rate limiting.
 - Global and per-IP active scan limits.
 

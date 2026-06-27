@@ -1030,15 +1030,13 @@
 
     const protocol = location.protocol === "https:" ? "wss" : "ws";
     const accessToken = els.accessToken.value.trim();
-    const crawlPath = accessToken
-      ? `/ws/crawl?access_token=${encodeURIComponent(accessToken)}`
-      : "/ws/crawl";
-    ws = new WebSocket(`${protocol}://${location.host}${crawlPath}`);
+    ws = new WebSocket(`${protocol}://${location.host}/ws/crawl`);
 
     ws.onopen = () => {
       const matchingOptions = readMatchingOptions();
       els.statusHint.textContent = "Scanning…";
       ws.send(JSON.stringify({
+        access_token: accessToken,
         start_url: startUrl,
         keyword: keyword,
         max_depth: maxDepthConfigured,
