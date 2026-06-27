@@ -8,7 +8,7 @@ resource "aws_instance" "wordfinder" {
   monitoring                  = var.enable_detailed_monitoring
 
   user_data_replace_on_change = true
-  user_data = templatefile("${path.module}/user_data.sh.tftpl", {
+  user_data = replace(templatefile("${path.module}/user_data.sh.tftpl", {
     aws_region                            = var.aws_region
     domain_name                           = var.domain_name
     ghcr_image                            = var.ghcr_image
@@ -25,7 +25,7 @@ resource "aws_instance" "wordfinder" {
     wordfinder_max_pages                  = var.wordfinder_max_pages
     wordfinder_max_depth                  = var.wordfinder_max_depth
     wordfinder_max_response_bytes         = var.wordfinder_max_response_bytes
-  })
+  }), "\r\n", "\n")
 
   root_block_device {
     volume_size = var.root_volume_size
