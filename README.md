@@ -8,6 +8,12 @@ The app has a FastAPI backend and a plain HTML/CSS/JavaScript frontend. The
 scan runs over a WebSocket connection so results, graph updates, and counters
 appear live while the crawl is running.
 
+Live demo:
+
+```text
+https://wordfinder.bogdanistrate.ro
+```
+
 ## Features
 
 - Start from a website URL and crawl only the same domain.
@@ -181,19 +187,25 @@ has real tradeoffs.
 - Metadata and full HTML are available for broader technical audits, but they
   can produce noisier matches.
 
-## Deployment Direction
+## Deployment
 
-The planned production deployment is:
+The production deployment is live on AWS:
 
 - GitHub repository with `dev` branch and PRs into `main`.
-- GitHub Actions for tests and Docker image build.
-- GitHub Container Registry (GHCR) for the Docker image.
+- GitHub Actions for tests, Docker image publishing, and deployment.
+- Public GitHub Container Registry (GHCR) package for the Docker image.
 - Dedicated AWS EC2 `t3.small` instance for WordFinder.
 - Dedicated CloudFront distribution for `wordfinder.bogdanistrate.ro`.
 - Route 53 alias record for the WordFinder CloudFront distribution.
 - AWS Systems Manager Session Manager for administration; no public SSH.
 - AWS Systems Manager Parameter Store `SecureString` for production secrets.
 - Deployment from GitHub Actions to EC2 through SSM Run Command.
+
+Current production URL:
+
+```text
+https://wordfinder.bogdanistrate.ro
+```
 
 Production secrets such as `WORDFINDER_ACCESS_TOKEN` should not be committed,
 stored in Terraform state, or hardcoded in user data.
