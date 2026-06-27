@@ -1,0 +1,35 @@
+local_pydeps/
+.codex_pydeps/
+pydeps_user/
+__pycache__/
+*.pyc
+
+# Local Markdown notes/plans; keep only the public README in Git.
+*.md
+!README.md
+
+# Local agent/session files
+.agents/
+.codex/
+PROJECT_MEMORY.md
+NEXT_STEPS.md
+REMEDIATION.md
+docs/superpowers/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# Local artifacts
+*.log
+*.tmp
+*.bak
+coverage/
+dist/
+build/
+wordfinder-advanced-settings.png
