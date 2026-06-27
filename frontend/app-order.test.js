@@ -25,8 +25,14 @@ assert.match(
 
 assert.match(
   appSource,
-  /access_token=\$\{encodeURIComponent\(accessToken\)\}/,
-  "frontend should pass the optional access key as an encoded WebSocket query parameter"
+  /new WebSocket\(`\$\{protocol\}:\/\/\$\{location\.host\}\/ws\/crawl`\)/,
+  "frontend should connect to the WebSocket without putting the access key in the URL"
+);
+
+assert.match(
+  appSource,
+  /access_token: accessToken,[\s\S]*?start_url: startUrl,/,
+  "frontend should pass the optional access key in the first WebSocket payload"
 );
 
 assert.match(

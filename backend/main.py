@@ -30,6 +30,7 @@ from fastapi.staticfiles import StaticFiles
 from crawler import CrawlConfig, WordFinderCrawler
 
 FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+INITIAL_WS_MESSAGE_TIMEOUT_SECONDS = 10
 
 
 def _env_int(name: str, fallback: int, env=os.environ) -> int:
@@ -179,29 +180,37 @@ async def crawl_ws(websocket: WebSocket):
         fallback=fallback_ip,
         trust_proxy=ACCESS_CONTROL.trust_proxy_headers,
     )
-    token = websocket.query_params.get("access_token") or websocket.headers.get("x-wordfinder-token")
-
-    allowed, reason = ACCESS_CONTROL.authorize(token)
-    if not allowed:
-        await websocket.close(code=1008, reason=_close_reason(reason))
-        return
-
-    allowed, reason = ACCESS_CONTROL.acquire_session(client_ip)
-    if not allowed:
-        await websocket.close(code=1013, reason=_close_reason(reason))
-        return
-
     crawler: WordFinderCrawler | None = None
+    session_acquired = False
 
     try:
-        allowed, reason = ACCESS_CONTROL.check_rate_limit(client_ip)
+        await websocket.accept()
+        raw_config = await asyncio.wait_for(
+            websocket.receive_text(),
+            timeout=INITIAL_WS_MESSAGE_TIMEOUT_SECONDS,
+        )
+        data = json.loads(raw_config)
+        fallback_token = websocket.query_params.get("access_token") or websocket.headers.get("x-wordfinder-token")
+        token = fallback_token or data.get("access_token")
+
+        allowed, reason = ACCESS_CONTROL.authorize(token)
         if not allowed:
+            await websocket.send_json({"type": "error", "payload": {"message": _close_reason(reason)}})
             await websocket.close(code=1008, reason=_close_reason(reason))
             return
 
-        await websocket.accept()
-        raw_config = await websocket.receive_text()
-        data = json.loads(raw_config)
+        allowed, reason = ACCESS_CONTROL.acquire_session(client_ip)
+        if not allowed:
+            await websocket.send_json({"type": "error", "payload": {"message": _close_reason(reason)}})
+            await websocket.close(code=1013, reason=_close_reason(reason))
+            return
+        session_acquired = True
+
+        allowed, reason = ACCESS_CONTROL.check_rate_limit(client_ip)
+        if not allowed:
+            await websocket.send_json({"type": "error", "payload": {"message": _close_reason(reason)}})
+            await websocket.close(code=1008, reason=_close_reason(reason))
+            return
 
         config = CrawlConfig(
             start_url=data["start_url"],
@@ -243,6 +252,10 @@ async def crawl_ws(websocket: WebSocket):
     except WebSocketDisconnect:
         if crawler:
             crawler.stop()
+    except asyncio.TimeoutError:
+        with suppress(Exception):
+            await websocket.send_json({"type": "error", "payload": {"message": "Authentication timed out."}})
+            await websocket.close(code=1008, reason="Authentication timed out.")
     except Exception as e:
         try:
             await websocket.send_json({"type": "error", "payload": {"message": str(e)}})
@@ -250,7 +263,8 @@ async def crawl_ws(websocket: WebSocket):
         except Exception:
             pass
     finally:
-        ACCESS_CONTROL.release_session(client_ip)
+        if session_acquired:
+            ACCESS_CONTROL.release_session(client_ip)
 
 
 if __name__ == "__main__":

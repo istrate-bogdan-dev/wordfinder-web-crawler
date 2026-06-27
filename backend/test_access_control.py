@@ -2,6 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
@@ -10,6 +11,22 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import main
 from main import CrawlAccessControl, client_ip_from_headers, parse_allowed_origins, server_runtime_config
+
+
+class FakeCrawlerEvent:
+    type = "done"
+    payload = {"pages_done": 0, "matches_total": 0, "reason": "test"}
+
+
+class FakeCrawler:
+    def __init__(self, config):
+        self.config = config
+
+    async def run(self):
+        yield FakeCrawlerEvent()
+
+    def stop(self):
+        pass
 
 
 class AccessControlTests(unittest.TestCase):
@@ -134,11 +151,83 @@ class WebSocketAccessTests(unittest.TestCase):
         main.ACCESS_CONTROL = CrawlAccessControl(required_token="secret")
         client = TestClient(main.app)
 
-        with self.assertRaises(WebSocketDisconnect) as context:
-            with client.websocket_connect("/ws/crawl"):
-                pass
+        with client.websocket_connect("/ws/crawl") as websocket:
+            websocket.send_json(
+                {
+                    "start_url": "https://example.com",
+                    "keyword": "example",
+                }
+            )
+            self.assertEqual(websocket.receive_json()["type"], "error")
+            close_message = websocket.receive()
 
-        self.assertEqual(context.exception.code, 1008)
+        self.assertEqual(close_message["type"], "websocket.close")
+        self.assertEqual(close_message["code"], 1008)
+
+    def test_accepts_access_token_in_first_websocket_message(self):
+        main.ACCESS_CONTROL = CrawlAccessControl(required_token="secret")
+        client = TestClient(main.app)
+
+        with patch.object(main, "WordFinderCrawler", FakeCrawler):
+            with client.websocket_connect("/ws/crawl") as websocket:
+                websocket.send_json(
+                    {
+                        "access_token": "secret",
+                        "start_url": "https://example.com",
+                        "keyword": "example",
+                        "max_depth": 0,
+                        "max_pages": 1,
+                        "max_concurrency": 1,
+                    }
+                )
+
+                self.assertEqual(websocket.receive_json()["type"], "done")
+
+        self.assertEqual(main.ACCESS_CONTROL._active_sessions, 0)
+
+    def test_still_accepts_query_token_during_transition(self):
+        main.ACCESS_CONTROL = CrawlAccessControl(required_token="secret")
+        client = TestClient(main.app)
+
+        with patch.object(main, "WordFinderCrawler", FakeCrawler):
+            with client.websocket_connect("/ws/crawl?access_token=secret") as websocket:
+                websocket.send_json(
+                    {
+                        "start_url": "https://example.com",
+                        "keyword": "example",
+                        "max_depth": 0,
+                        "max_pages": 1,
+                        "max_concurrency": 1,
+                    }
+                )
+
+                self.assertEqual(websocket.receive_json()["type"], "done")
+
+    def test_wrong_first_message_token_does_not_consume_session_or_rate_limit(self):
+        main.ACCESS_CONTROL = CrawlAccessControl(
+            required_token="secret",
+            scans_per_minute=1,
+            max_active_sessions=1,
+            max_active_sessions_per_ip=1,
+        )
+        client = TestClient(main.app)
+
+        with client.websocket_connect("/ws/crawl") as websocket:
+            websocket.send_json(
+                {
+                    "access_token": "wrong",
+                    "start_url": "https://example.com",
+                    "keyword": "example",
+                }
+            )
+            self.assertEqual(websocket.receive_json()["type"], "error")
+            close_message = websocket.receive()
+
+        self.assertEqual(close_message["type"], "websocket.close")
+        self.assertEqual(close_message["code"], 1008)
+        self.assertEqual(main.ACCESS_CONTROL._active_sessions, 0)
+        self.assertEqual(dict(main.ACCESS_CONTROL._active_sessions_by_ip), {})
+        self.assertEqual(dict(main.ACCESS_CONTROL._recent_scans), {})
 
 
 class AcceptFailureWebSocket:
