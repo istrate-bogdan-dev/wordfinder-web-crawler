@@ -1,0 +1,41 @@
+aws_region  = "eu-central-1"
+environment = "prod"
+
+domain_name      = "wordfinder.bogdanistrate.ro"
+hosted_zone_name = "bogdanistrate.ro"
+
+instance_type    = "t3.small"
+root_volume_size = 20
+
+# Reuse the existing wildcard certificate if it is issued in us-east-1.
+# Either leave cloudfront_acm_certificate_arn empty and let Terraform find:
+#   acm_certificate_domain_name = "*.bogdanistrate.ro"
+# or paste the exact ARN here.
+cloudfront_acm_certificate_arn = ""
+create_acm_certificate         = false
+acm_certificate_domain_name    = "*.bogdanistrate.ro"
+
+ghcr_image     = "ghcr.io/istrate-bogdan-dev/wordfinder-web-crawler"
+ghcr_image_tag = "main"
+
+# Create this manually as an SSM SecureString before relying on the app.
+access_token_parameter_name = "/wordfinder/prod/access-token"
+
+# Leave empty if the GHCR package is public.
+ghcr_username             = ""
+ghcr_token_parameter_name = ""
+
+wordfinder_allowed_origins            = "https://wordfinder.bogdanistrate.ro"
+wordfinder_max_active_sessions        = 1
+wordfinder_max_active_sessions_per_ip = 1
+wordfinder_scans_per_minute           = 2
+wordfinder_max_concurrency            = 3
+wordfinder_max_pages                  = 50
+wordfinder_max_depth                  = 2
+wordfinder_max_response_bytes         = 3145728
+
+# Enable later after confirming or creating the account-level GitHub OIDC provider.
+create_github_actions_deploy_role = false
+github_oidc_provider_arn          = ""
+github_repository                 = "istrate-bogdan-dev/wordfinder-web-crawler"
+github_deploy_branch              = "main"
