@@ -171,7 +171,7 @@
   }
 
   function resultsInfoText() {
-    return "Shows only the pages where WordFinder found the keyword. Each card includes the page, how many times the word appears, and short text examples.";
+    return "Shows pages where the keyword was found. CSV is for spreadsheet review; JSON is for dashboards, automations, and other tools.";
   }
 
   function feedDetailsPresentation(payload) {

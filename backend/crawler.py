@@ -561,6 +561,11 @@ class WordFinderCrawler:
                 snippets.append(f"…{snippet}…")
         return match_count, snippets
 
+    def _process_html_response(self, html: str, final_url: str) -> tuple[str, list[str], int, list[str]]:
+        title, text, links = self._extract_search_document(html, final_url)
+        match_count, snippets = self._find_match_summary(text)
+        return title, links, match_count, snippets
+
     async def _fetch_one(
         self, client: httpx.AsyncClient, url: str, depth: int
     ) -> tuple[PageResult, list[str]]:
@@ -607,8 +612,9 @@ class WordFinderCrawler:
 
                     final_url = str(resp.url)
                     self._remember_redirect_domain(url, final_url)
-                    title, text, links = self._extract_search_document(resp.text, final_url)
-                    match_count, snippets = self._find_match_summary(text)
+                    title, links, match_count, snippets = await asyncio.to_thread(
+                        self._process_html_response, resp.text, final_url
+                    )
                     status = "ok" if match_count else "no_match"
 
                     return (

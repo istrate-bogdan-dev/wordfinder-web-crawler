@@ -90,7 +90,7 @@ assert.strictEqual(
 );
 assert.strictEqual(
   resultsInfoText(),
-  "Shows only the pages where WordFinder found the keyword. Each card includes the page, how many times the word appears, and short text examples."
+  "Shows pages where the keyword was found. CSV is for spreadsheet review; JSON is for dashboards, automations, and other tools."
 );
 assert.deepStrictEqual(
   feedDetailsPresentation({ links_found: 126, elapsed_ms: 234 }),

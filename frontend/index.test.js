@@ -4,6 +4,12 @@ const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
 
+assert.doesNotMatch(
+  html,
+  /\sstyle=/,
+  "main page should avoid inline style attributes so the production CSP can stay strict"
+);
+
 const advancedPanel = html.match(/<div class="advanced-panel" id="advancedPanel" hidden>([\s\S]*?)<\/div>\s*<\/div>\s*<div class="field-row toggles">/);
 assert.ok(advancedPanel, "advanced panel should remain separate from the main toggle row");
 assert.doesNotMatch(
@@ -82,6 +88,11 @@ assert.match(
   html,
   /id="exportCsvBtn"[\s\S]*CSV[\s\S]*id="exportJsonBtn"[\s\S]*JSON/,
   "results panel should expose CSV and JSON export buttons"
+);
+assert.match(
+  html,
+  /<section class="panel results-panel" id="resultsPanel" hidden>/,
+  "results panel should start hidden without relying on inline display:none"
 );
 
 assert.match(

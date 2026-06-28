@@ -34,6 +34,11 @@ data "aws_ec2_managed_prefix_list" "cloudfront" {
   name = "com.amazonaws.global.cloudfront.origin-facing"
 }
 
+data "aws_ip_ranges" "cloudfront" {
+  services = ["CLOUDFRONT"]
+  regions  = ["GLOBAL"]
+}
+
 data "aws_acm_certificate" "existing" {
   count       = var.cloudfront_acm_certificate_arn == "" && !var.create_acm_certificate ? 1 : 0
   provider    = aws.us_east_1

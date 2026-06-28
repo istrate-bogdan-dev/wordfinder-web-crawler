@@ -35,7 +35,8 @@ https://wordfinder.bogdanistrate.ro/terms
   - visible text
   - visible text plus metadata
   - full HTML
-- CSV and JSON export for matched pages.
+- CSV export for spreadsheet review and JSON export for structured handoff to
+  other tools.
 - `/health` endpoint for container and reverse-proxy checks.
 - Public Terms page and footer links for the portfolio deployment.
 
@@ -57,14 +58,21 @@ Implemented protections include:
   of placing it in the WebSocket URL, so normal access logs do not capture it.
 - Per-IP rate limiting when the app receives a trusted client IP.
 - Global and per-IP active scan limits.
+- Production nginx real-IP handling for CloudFront, with forwarded client-IP
+  headers overwritten before they reach the app.
+- Production nginx security headers, including CSP, HSTS, frame blocking,
+  referrer policy, and `nosniff`.
+- The frontend avoids inline style attributes, so production CSP can stay
+  strict without allowing `unsafe-inline`.
 
 For public deployments, set `WORDFINDER_ACCESS_TOKEN` and keep crawl limits
 conservative.
 
 When WordFinder runs behind CloudFront, nginx, or another reverse proxy, make
-sure the proxy chain overwrites forwarded client-IP headers before enabling
+sure the proxy chain derives the real viewer IP from trusted proxy hops and
+then overwrites `X-Forwarded-For` / `X-Real-IP` before enabling
 `WORDFINDER_TRUST_PROXY=true`. Otherwise, client-supplied `X-Forwarded-For`
-values can make per-IP limits less reliable.
+values can make per-IP limits unreliable.
 
 ## Run Locally
 
@@ -121,10 +129,22 @@ node frontend/number-controls.test.js
 node frontend/style.test.js
 node frontend/app-order.test.js
 node frontend/app-state.test.js
+node frontend/favicon.test.js
 node frontend/index.test.js
 node frontend/terms.test.js
 node --check frontend/app.js
 ```
+
+Infrastructure template checks:
+
+```bash
+node infra/aws/wordfinder-runtime/user-data.test.js
+```
+
+The frontend checks also cover the CSP-sensitive results panel behavior: the
+results section starts hidden with the native HTML `hidden` attribute and is
+shown again when a scan produces matched pages, without relying on inline
+`style="display:none"`.
 
 Python syntax check:
 
@@ -168,6 +188,10 @@ Access key field before starting a scan.
 5. Click "Start scan".
 6. Review live graph, stats, feed, and results.
 7. Export matched pages as CSV or JSON.
+
+CSV is the easiest format for spreadsheets. JSON keeps the same result data in
+a structured package that can be imported into dashboards, automation tools,
+AI assistants, or content QA systems without manually reshaping columns.
 
 ## Architecture
 
@@ -215,6 +239,10 @@ The production deployment is live on AWS:
 - AWS Systems Manager Session Manager for administration; no public SSH.
 - AWS Systems Manager Parameter Store `SecureString` for production secrets.
 - Deployment from GitHub Actions to EC2 through SSM Run Command.
+- nginx in front of the app container, configured to trust CloudFront origin
+  CIDRs, overwrite forwarded IP headers, and add browser security headers.
+- Dependabot for dependency update PRs and `pip-audit` in CI for backend
+  dependency vulnerability checks.
 
 Current production URL:
 
@@ -224,6 +252,11 @@ https://wordfinder.bogdanistrate.ro
 
 Production secrets such as `WORDFINDER_ACCESS_TOKEN` should not be committed,
 stored in Terraform state, or hardcoded in user data.
+
+Remaining optional hardening for a larger production setup would include a
+CloudFront-to-origin verification secret, HTTPS between CloudFront and origin,
+and AWS WAF rules. The current deployment relies on the access token, strict
+crawl limits, security groups, and SSM-only administration for the public demo.
 
 ## Terms And License
 

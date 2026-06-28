@@ -64,6 +64,12 @@ assert.match(
   "export buttons should be wired to the export handlers"
 );
 
+assert.match(
+  appSource,
+  /function setupStepperButton\(button\) \{[\s\S]*?numberControls\.stepperRepeatDelay[\s\S]*?button\.addEventListener\("pointerdown"[\s\S]*?button\.addEventListener\("pointerup"/,
+  "number steppers should auto-repeat while pressed, then stop on pointer release"
+);
+
 assert.doesNotMatch(
   appSource,
   /access_token=\$\{encodeURIComponent\(accessToken\)\}/,

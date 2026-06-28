@@ -25,6 +25,7 @@ resource "aws_instance" "wordfinder" {
     wordfinder_max_pages                  = var.wordfinder_max_pages
     wordfinder_max_depth                  = var.wordfinder_max_depth
     wordfinder_max_response_bytes         = var.wordfinder_max_response_bytes
+    cloudfront_origin_cidr_blocks         = data.aws_ip_ranges.cloudfront.cidr_blocks
   }), "\r\n", "\n")
 
   root_block_device {

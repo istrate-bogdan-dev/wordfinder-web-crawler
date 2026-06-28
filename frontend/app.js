@@ -626,6 +626,74 @@
     return value;
   }
 
+  function stepInputFromButton(button) {
+    const input = document.getElementById(button.dataset.stepTarget);
+    if (!input) return;
+    const { min, max, fallback } = inputBounds(input);
+    input.value = String(numberControls.stepNumberValue(
+      input.value,
+      Number(button.dataset.step),
+      min,
+      max,
+      fallback
+    ));
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  function setupStepperButton(button) {
+    let repeatTimer = null;
+    let repeatCount = 0;
+    let skipNextClick = false;
+
+    const clearRepeat = () => {
+      if (repeatTimer) window.clearTimeout(repeatTimer);
+      repeatTimer = null;
+      repeatCount = 0;
+      button.classList.remove("is-repeating");
+    };
+
+    const stopRepeat = () => {
+      clearRepeat();
+      window.setTimeout(() => { skipNextClick = false; }, 250);
+    };
+
+    const scheduleRepeat = () => {
+      repeatTimer = window.setTimeout(() => {
+        stepInputFromButton(button);
+        repeatCount += 1;
+        scheduleRepeat();
+      }, numberControls.stepperRepeatDelay(repeatCount));
+    };
+
+    button.addEventListener("pointerdown", (event) => {
+      if (event.button !== undefined && event.button !== 0) return;
+      event.preventDefault();
+      clearRepeat();
+      skipNextClick = true;
+      try {
+        button.setPointerCapture?.(event.pointerId);
+      } catch {
+        // Synthetic pointer events and some embedded browsers may not expose an active pointer.
+      }
+      stepInputFromButton(button);
+      button.classList.add("is-repeating");
+      scheduleRepeat();
+    });
+
+    button.addEventListener("pointerup", stopRepeat);
+    button.addEventListener("pointercancel", stopRepeat);
+    button.addEventListener("pointerleave", stopRepeat);
+    button.addEventListener("blur", stopRepeat);
+    button.addEventListener("click", (event) => {
+      if (skipNextClick) {
+        event.preventDefault();
+        skipNextClick = false;
+        return;
+      }
+      stepInputFromButton(button);
+    });
+  }
+
   function updateAdvancedSummary() {
     const depth = readBoundedNumber(els.maxDepth);
     const pages = readBoundedNumber(els.maxPages);
@@ -679,21 +747,7 @@
       });
     });
 
-    document.querySelectorAll(".stepper-btn").forEach((button) => {
-      button.addEventListener("click", () => {
-        const input = document.getElementById(button.dataset.stepTarget);
-        if (!input) return;
-        const { min, max, fallback } = inputBounds(input);
-        input.value = String(numberControls.stepNumberValue(
-          input.value,
-          Number(button.dataset.step),
-          min,
-          max,
-          fallback
-        ));
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-      });
-    });
+    document.querySelectorAll(".stepper-btn").forEach(setupStepperButton);
 
     [els.maxDepth, els.maxPages, els.maxConcurrency].forEach((input) => {
       input.addEventListener("input", updateAdvancedSummary);
@@ -746,7 +800,7 @@
     els.progressFill.style.width = "0%";
     els.progressCaption.textContent = `0 / ${maxPagesConfigured} pages`;
     els.feed.innerHTML = '<div class="feed-empty">Results will appear here as the scan progresses…</div>';
-    els.resultsPanel.style.display = "none";
+    els.resultsPanel.hidden = true;
     els.resultsList.innerHTML = "";
     els.exportCsvBtn.disabled = true;
     els.exportJsonBtn.disabled = true;
@@ -821,7 +875,7 @@
       <div class="result-snippets">${snippetsHtml}</div>
     `;
     els.resultsList.appendChild(card);
-    els.resultsPanel.style.display = "block";
+    els.resultsPanel.hidden = false;
   }
 
   function rememberResult(payload) {

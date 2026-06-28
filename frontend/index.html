@@ -263,7 +263,7 @@
     </section>
 
     <!-- Final results -->
-    <section class="panel results-panel" id="resultsPanel" style="display:none;">
+    <section class="panel results-panel" id="resultsPanel" hidden>
       <div class="panel-title-row">
         <h2 class="panel-title">05 &mdash; Pages with results</h2>
         <div class="panel-actions">
@@ -271,7 +271,7 @@
           <button type="button" class="export-btn" id="exportJsonBtn" disabled>JSON</button>
           <span class="inline-info">
             <button type="button" class="inline-info-btn" aria-label="What does Pages with results mean?">i</button>
-            <span class="inline-info-popover" id="resultsInfoText" role="tooltip">Shows only the pages where WordFinder found the keyword. Each card includes the page, how many times the word appears, and short text examples.</span>
+            <span class="inline-info-popover" id="resultsInfoText" role="tooltip">Shows pages where the keyword was found. CSV is for spreadsheet review; JSON is for dashboards, automations, and other tools.</span>
           </span>
         </div>
       </div>
@@ -288,8 +288,8 @@
     <span>Bounded crawler &middot; respects robots.txt &middot; per-domain rate limiting</span>
   </footer>
 
-  <script src="/static/number-controls.js"></script>
-  <script src="/static/graph-utils.js"></script>
-  <script src="/static/app.js"></script>
+  <script src="/static/number-controls.js?v=stepper-repeat"></script>
+  <script src="/static/graph-utils.js?v=results-export-info"></script>
+  <script src="/static/app.js?v=stepper-repeat-v2"></script>
 </body>
 </html>

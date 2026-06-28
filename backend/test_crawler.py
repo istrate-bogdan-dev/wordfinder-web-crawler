@@ -585,6 +585,38 @@ class RetryAndRobotsTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(attempts, 2)
         sleep.assert_awaited_once_with(0.5)
 
+    async def test_fetch_processes_html_in_worker_thread(self):
+        crawler = WordFinderCrawler(
+            CrawlConfig(
+                start_url="https://example.com",
+                keyword="energy",
+                max_retries=0,
+                respect_robots=False,
+            )
+        )
+
+        class FakeClient:
+            def stream(self, method, url, *args, **kwargs):
+                response = httpx.Response(
+                    200,
+                    headers={"content-type": "text/html"},
+                    text="<html><body>energy <a href='/next'>Next</a></body></html>",
+                    request=httpx.Request("GET", url),
+                )
+                return AsyncStreamContext(response)
+
+        crawler._ensure_public_url = _allow_public_url
+
+        with patch("crawler.asyncio.to_thread", new_callable=AsyncMock) as to_thread:
+            to_thread.side_effect = lambda func, *args, **kwargs: func(*args, **kwargs)
+
+            result, links = await crawler._fetch_one(FakeClient(), "https://example.com", 0)
+
+        to_thread.assert_awaited_once()
+        self.assertEqual(result.status, "ok")
+        self.assertEqual(result.match_count, 1)
+        self.assertEqual(links, ["https://example.com/next"])
+
     async def test_fetch_does_not_retry_permanent_not_found_errors(self):
         crawler = WordFinderCrawler(
             CrawlConfig(

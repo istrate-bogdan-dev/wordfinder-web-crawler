@@ -22,9 +22,14 @@
     return clampNumber(current + direction, min, max);
   }
 
+  function stepperRepeatDelay(repeatIndex) {
+    return Math.max(70, 350 - repeatIndex * 30);
+  }
+
   return {
     clampNumber,
     stepNumberValue,
+    stepperRepeatDelay,
     toFiniteNumber,
   };
 });
