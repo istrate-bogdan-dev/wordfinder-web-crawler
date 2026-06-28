@@ -19,8 +19,13 @@ assert.match(
 
 assert.match(
   html,
-  /<label for="accessToken">Access key<\/label>[\s\S]*<input[^>]*type="password"[^>]*id="accessToken"/,
-  "protected deployments should let users enter an access key without exposing it in source"
+  /<label for="accessToken">Access key<\/label>[\s\S]*data-info-target="accessKeyInfo"[\s\S]*<input[^>]*type="password"[^>]*id="accessToken"/,
+  "protected deployments should let users enter an access key with a contextual explanation"
+);
+assert.match(
+  html,
+  /id="accessKeyInfo"[\s\S]*live online version[\s\S]*internet[\s\S]*locally/i,
+  "access key info should explain that the key is for live deployments and is usually not needed locally"
 );
 
 assert.match(

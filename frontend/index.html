@@ -42,8 +42,12 @@
         <input type="text" id="keyword" placeholder="e.g. sustainability" />
       </div>
 
-      <div class="field">
-        <label for="accessToken">Access key</label>
+      <div class="field field-with-info">
+        <div class="label-row">
+          <label for="accessToken">Access key</label>
+          <button type="button" class="info-btn" aria-label="What does Access key do?" aria-expanded="false" data-info-target="accessKeyInfo">i</button>
+        </div>
+        <p class="info-popover" id="accessKeyInfo" hidden>The access key is a small password for the live online version. It helps prevent unwanted scans from the internet. You usually do not need it when running WordFinder locally.</p>
         <input type="password" id="accessToken" placeholder="Required only on protected deployments" autocomplete="current-password" />
       </div>
 
