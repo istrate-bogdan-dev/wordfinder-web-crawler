@@ -47,6 +47,7 @@ jobs:
           node frontend/style.test.js
           node frontend/app-order.test.js
           node frontend/app-state.test.js
+          node frontend/favicon.test.js
           node frontend/index.test.js
           node frontend/terms.test.js
           node --check frontend/app.js
