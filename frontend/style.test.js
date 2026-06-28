@@ -30,6 +30,12 @@ assert.match(
 
 assert.match(
   css,
+  /\.field-with-info\s+\.info-popover\s*\{[\s\S]*?top:\s*calc\(100% \+ 8px\);[\s\S]*?\}/,
+  "standalone field info popovers should not cover their own inputs"
+);
+
+assert.match(
+  css,
   /input\[type="text"\],[\s\S]*?input\[type="url"\],[\s\S]*?input\[type="password"\],[\s\S]*?input\[type="number"\],[\s\S]*?select\s*\{/,
   "password inputs should share the same visual styling as the other text fields"
 );

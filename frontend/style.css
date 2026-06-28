@@ -367,6 +367,10 @@ select:focus {
   padding: 9px 10px;
 }
 
+.field-with-info .info-popover {
+  top: calc(100% + 8px);
+}
+
 .number-control {
   position: relative;
 }
