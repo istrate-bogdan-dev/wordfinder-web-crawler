@@ -81,6 +81,17 @@ html, body {
   letter-spacing: -0.02em;
 }
 
+.brand-link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.brand-link:hover,
+.brand-link:focus-visible {
+  color: var(--text);
+  outline: none;
+}
+
 .brand-mark {
   color: var(--accent);
   font-size: 18px;
@@ -1288,6 +1299,76 @@ select:focus {
   padding: 24px 0 36px;
   position: relative;
   z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footer a {
+  color: var(--text-dim);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.footer a:hover,
+.footer a:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+  outline: none;
+}
+
+/* ---------- Terms page ---------- */
+.terms-layout {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 40px 80px;
+}
+
+.terms-panel {
+  padding: 30px;
+}
+
+.terms-kicker {
+  margin: 0 0 12px;
+  color: var(--text-faint);
+  font-family: var(--font-display);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.terms-panel h1 {
+  margin: 0 0 18px;
+  color: var(--text);
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.terms-panel h2 {
+  margin: 26px 0 8px;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.terms-panel p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.terms-panel a {
+  color: var(--accent);
+  text-decoration-color: var(--accent-dim);
+  text-underline-offset: 3px;
+}
+
+.terms-back {
+  margin-top: 28px !important;
 }
 
 /* ---------- Responsive ---------- */
@@ -1302,6 +1383,7 @@ select:focus {
       "results";
     padding: 24px 18px 60px;
   }
+  .terms-layout { padding: 24px 18px 60px; }
   .topbar { padding: 22px 18px 16px; flex-direction: column; gap: 4px; align-items: flex-start; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .advanced-grid { flex-direction: column; }

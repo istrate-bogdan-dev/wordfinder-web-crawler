@@ -14,6 +14,12 @@ Live demo:
 https://wordfinder.bogdanistrate.ro
 ```
 
+Terms page:
+
+```text
+https://wordfinder.bogdanistrate.ro/terms
+```
+
 ## Features
 
 - Start from a website URL and crawl only the same domain.
@@ -31,6 +37,7 @@ https://wordfinder.bogdanistrate.ro
   - full HTML
 - CSV and JSON export for matched pages.
 - `/health` endpoint for container and reverse-proxy checks.
+- Public Terms page and footer links for the portfolio deployment.
 
 ## Security And Safety
 
@@ -48,11 +55,16 @@ Implemented protections include:
 - WebSocket access token support.
 - The frontend sends the access token in the first WebSocket message instead
   of placing it in the WebSocket URL, so normal access logs do not capture it.
-- Per-IP rate limiting.
+- Per-IP rate limiting when the app receives a trusted client IP.
 - Global and per-IP active scan limits.
 
 For public deployments, set `WORDFINDER_ACCESS_TOKEN` and keep crawl limits
 conservative.
+
+When WordFinder runs behind CloudFront, nginx, or another reverse proxy, make
+sure the proxy chain overwrites forwarded client-IP headers before enabling
+`WORDFINDER_TRUST_PROXY=true`. Otherwise, client-supplied `X-Forwarded-For`
+values can make per-IP limits less reliable.
 
 ## Run Locally
 
@@ -110,6 +122,7 @@ node frontend/style.test.js
 node frontend/app-order.test.js
 node frontend/app-state.test.js
 node frontend/index.test.js
+node frontend/terms.test.js
 node --check frontend/app.js
 ```
 
@@ -211,6 +224,12 @@ https://wordfinder.bogdanistrate.ro
 
 Production secrets such as `WORDFINDER_ACCESS_TOKEN` should not be committed,
 stored in Terraform state, or hardcoded in user data.
+
+## Terms And License
+
+- Public terms are served at `/terms`.
+- The footer links to Bogdan Istrate's LinkedIn profile and the Terms page.
+- The source code is released under the MIT License. See [LICENSE](LICENSE).
 
 ## Limitations
 

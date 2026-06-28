@@ -78,6 +78,24 @@ assert.match(
 
 assert.match(
   css,
+  /\.footer\s*\{[\s\S]*?display:\s*flex;[\s\S]*?flex-wrap:\s*wrap;[\s\S]*?\}/,
+  "footer links should remain readable and wrap safely"
+);
+
+assert.match(
+  css,
+  /\.footer\s+a\s*\{[\s\S]*?color:\s*var\(--text-dim\);[\s\S]*?text-decoration:\s*none;[\s\S]*?\}/,
+  "footer links should match the existing dark UI"
+);
+
+assert.match(
+  css,
+  /\.terms-layout\s*\{[\s\S]*?max-width:\s*860px;[\s\S]*?padding:\s*32px 40px 80px;[\s\S]*?\}/,
+  "terms page should use a constrained reading width"
+);
+
+assert.match(
+  css,
   /prefers-reduced-motion:\s*reduce[\s\S]*?scroll-behavior:\s*auto !important;/,
   "reduced motion should disable smooth scrolling behavior"
 );

@@ -139,6 +139,15 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
 
+    def test_terms_endpoint_serves_terms_page(self):
+        client = TestClient(main.app)
+
+        response = client.get("/terms")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Terms of Use", response.text)
+        self.assertIn("portfolio project", response.text)
+
 
 class WebSocketAccessTests(unittest.TestCase):
     def setUp(self):

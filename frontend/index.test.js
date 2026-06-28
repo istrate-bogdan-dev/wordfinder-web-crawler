@@ -78,4 +78,10 @@ assert.match(
   "results panel should expose CSV and JSON export buttons"
 );
 
+assert.match(
+  html,
+  /<footer class="footer">[\s\S]*linkedin\.com\/in\/bogdan-cosmin-istrate[\s\S]*Copyright \(c\) 2026 Bogdan Istrate[\s\S]*href="\/terms"[\s\S]*Terms/,
+  "footer should expose copyright, LinkedIn, and Terms links"
+);
+
 console.log("index tests passed");
