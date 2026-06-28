@@ -4,13 +4,28 @@ updates:
     directory: "/backend"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      backend-python-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      github-actions-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      docker-dependencies:
+        patterns:
+          - "*"
