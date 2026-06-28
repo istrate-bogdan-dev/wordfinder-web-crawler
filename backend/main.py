@@ -1,6 +1,7 @@
 """
 main.py — FastAPI server. Exposes:
 - GET  /                -> serves the static frontend
+- GET  /terms           -> serves the public terms page
 - WS   /ws/crawl         -> receives crawl config, emits live events
 
 Design decision: we use WebSocket (not Server-Sent Events or polling)
@@ -165,6 +166,11 @@ def _close_reason(reason: str) -> str:
 @app.get("/")
 async def index():
     return FileResponse(str(FRONTEND_DIR / "index.html"))
+
+
+@app.get("/terms")
+async def terms():
+    return FileResponse(str(FRONTEND_DIR / "terms.html"))
 
 
 @app.get("/health")
