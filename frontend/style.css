@@ -153,6 +153,7 @@ html, body {
 
 /* ---------- Control panel ---------- */
 .field { margin-bottom: 16px; }
+.field-with-info { position: relative; }
 .field-row { display: flex; gap: 12px; margin-bottom: 16px; }
 .field-small { flex: 1; }
 
@@ -166,6 +167,7 @@ label {
 
 input[type="text"],
 input[type="url"],
+input[type="password"],
 input[type="number"],
 select {
   width: 100%;

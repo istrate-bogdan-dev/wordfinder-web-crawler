@@ -24,6 +24,18 @@ assert.match(
 
 assert.match(
   css,
+  /\.field-with-info\s*\{[\s\S]*?position:\s*relative;[\s\S]*?\}/,
+  "standalone field info popovers must position next to their own labels"
+);
+
+assert.match(
+  css,
+  /input\[type="text"\],[\s\S]*?input\[type="url"\],[\s\S]*?input\[type="password"\],[\s\S]*?input\[type="number"\],[\s\S]*?select\s*\{/,
+  "password inputs should share the same visual styling as the other text fields"
+);
+
+assert.match(
+  css,
   /\.matching-grid\s+\.info-popover\s*\{[\s\S]*?width:\s*240px;[\s\S]*?right:\s*auto;[\s\S]*?\}/,
   "matching control info popovers should be readable while staying anchored to their fields"
 );
