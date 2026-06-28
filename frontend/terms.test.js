@@ -12,6 +12,12 @@ assert.match(
 
 assert.match(
   html,
+  /<link rel="icon" type="image\/svg\+xml" href="\/static\/favicon\.svg\?v=wordfinder-logo" \/>/,
+  "terms page should expose the WordFinder favicon in browser tabs"
+);
+
+assert.match(
+  html,
   /portfolio project[\s\S]*educational proof of concept/i,
   "terms should clearly frame WordFinder as an educational portfolio project"
 );

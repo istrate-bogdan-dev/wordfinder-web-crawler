@@ -36,6 +36,12 @@ assert.match(
 
 assert.match(
   html,
+  /<link rel="icon" type="image\/svg\+xml" href="\/static\/favicon\.svg\?v=wordfinder-logo" \/>/,
+  "main page should expose the WordFinder favicon in browser tabs"
+);
+
+assert.match(
+  html,
   /<canvas[^>]*id="crawlGraph"[^>]*role="img"[^>]*tabindex="0"[^>]*aria-describedby="graphTextSummary"/,
   "canvas graph should have an accessible role, keyboard focus, and a text summary"
 );
